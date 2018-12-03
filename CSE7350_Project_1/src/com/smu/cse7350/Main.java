@@ -98,59 +98,10 @@ public class Main {
         int attendeeSessionCount = K;
         //SortedSet<Conflict> SessionTree = new TreeSet<>();
         Set<Conflict> SessionTree = new HashSet<>();
+
         start = System.nanoTime();
-//
-        int T = 0;
+
         int counter = 0;
-
-        int sessionMatrix[][] = new int[N+1][N+1];
-        for (Object obj : conferenceAttendees) {
-//            if (counter % 50 == 0) {
-//                System.out.println(counter);
-//            }
-            Attendee attendee = (Attendee) obj;
-            for (int index = 0; index < attendeeSessionCount - 1; index++)
-            {
-                int session1 = (int) attendee.mySessionsArray[index];
-                for (int index2 = index + 1; index2 < attendeeSessionCount; index2++)
-                {
-                    int session2 = (int) attendee.mySessionsArray[index2];
-                    sessionMatrix[session1][session2] = 1;
-                    sessionMatrix[session2][session1] = 1;
-                    T = T + 2;
-
-
-                }
-            }
-            counter++;
-        }
-        System.out.println("N^2 Matrix filled, reducing to M size now.");
-        DoubleLinkList<Conflict> reducedMatrix = new DoubleLinkList<>();
-        for (int i = 0; i < sessionMatrix.length; i++)
-        {
-            for (int j = 0; j< sessionMatrix[i].length; j++)
-            {
-                if (sessionMatrix[i][j] == 1)
-                {
-                    Conflict temp = new Conflict(i,j);
-                    reducedMatrix.addLast(temp);
-                }
-
-            }
-//            if (i%100 == 0)
-//            {
-//                System.out.println(i);
-//            }
-        }
-
-        System.out.println("Reduced Matrix Length: " + reducedMatrix.length);
-
-        stop = System.nanoTime();
-
-        long timeToPopulateAndReduceNsqr = stop - start;
-        start = System.nanoTime();
-
-        counter = 0;
         for (Object obj : conferenceAttendees) {
 //            if (counter % 50 == 0) {
 //                System.out.println(counter);
@@ -173,11 +124,78 @@ public class Main {
         }
         stop = System.nanoTime();
 
+        int M = SessionTree.size();
         long timeToPopulateM = stop - start;
+
+
+        start = System.nanoTime();
+//
+        int T = 0;
+        counter = 0;
+
+        int sessionMatrix[][] = new int[N+1][N+1];
+        for (Object obj : conferenceAttendees) {
+
+            Attendee attendee = (Attendee) obj;
+            for (int index = 0; index < attendeeSessionCount - 1; index++)
+            {
+                int session1 = (int) attendee.mySessionsArray[index];
+                for (int index2 = index + 1; index2 < attendeeSessionCount; index2++)
+                {
+                    int session2 = (int) attendee.mySessionsArray[index2];
+                    sessionMatrix[session1][session2] = 1;
+                    sessionMatrix[session2][session1] = 1;
+                    T = T + 2;
+
+
+                }
+            }
+            counter++;
+        }
+        System.out.println("N^2 Matrix filled, reducing to M size now.");
+        DoubleLinkList<Conflict> reducedMatrix = new DoubleLinkList<>();
+        int protoECounter = 0;
+        int P3[] = new int[N+1];
+        int E3[] = new int[M];
+        boolean pSet = false;
+        for (int i = 0; i < sessionMatrix.length; i++)
+        {
+            pSet = false;
+            for (int j = 0; j< sessionMatrix[i].length; j++)
+            {
+                if (sessionMatrix[i][j] == 1)
+                {
+                    Conflict temp = new Conflict(i,j);
+                    reducedMatrix.addLast(temp);
+
+                    if (pSet == false)
+                    {
+                        P3[i] = protoECounter;
+                        pSet = true;
+                    }
+
+                    E3[protoECounter] = j;
+                    protoECounter ++;
+                }
+
+            }
+
+            if (pSet == false)
+            {
+                P3[i] = protoECounter;
+            }
+        }
+
+        System.out.println("Reduced Matrix Length: " + reducedMatrix.length);
+
+        stop = System.nanoTime();
+
+        long timeToPopulateAndReduceNsqr = stop - start;
+
 
         start = System.nanoTime();
 
-        int M = SessionTree.size();
+
         System.out.println("T: " + T);
         System.out.println("M: " + M);
         int P[] = new int[N+1];
@@ -192,20 +210,20 @@ public class Main {
             int p = ((Conflict) head.data).conflict1;
             if (p> previousP)
             {
-                P[pCounter] = whileCounter;
+                P[p] = whileCounter;
                 previousP = p;
-                pCounter ++;
             }
             E[whileCounter] = ((Conflict) head.data).conflict2;
             whileCounter ++;
             head = head.next;
         }
+        E[whileCounter] = ((Conflict) head.data).conflict2;
+
 //
         stop = System.nanoTime();
 
         long timeForEPFromNsqr = stop - start;
 
-//
         System.out.println("Time to Populate and Reduce N^2: " + (timeToPopulateAndReduceNsqr/1000000000.0) + " Seconds. \nTime to Populate and reduce M:   " + (timeToPopulateM/1000000000.0)+" Seconds.");
 
 
@@ -217,20 +235,6 @@ public class Main {
         int E2[] = new int[M];
         previousP = -1;
         pCounter = 1;
-//        System.out.println("SessionArray Length: " + sessionArray.length);
-//        for (Object a : sessionArray)
-//        {
-//            System.out.print(a + " ");
-//        }
-//        System.out.println("");
-//        head = reducedMatrix.head;
-//        while (head.next != null)
-//        {
-//            System.out.print(head.data + " ");
-//            head = head.next;
-//        }
-//        System.out.println("");
-
 
         start = System.nanoTime();
 
@@ -252,27 +256,6 @@ public class Main {
         long timeForEPFromM = stop - start;
 
 
-//        for (int a : P)
-//        {
-//            System.out.print(a + " ");
-//        }
-//        System.out.println("");
-//        for (int a : E)
-//        {
-//            System.out.print(a + " ");
-//        }
-//        System.out.println("");
-//        for (int a : P2)
-//        {
-//            System.out.print(a + " ");
-//        }
-//        System.out.println("");
-//        for (int a : E2)
-//        {
-//            System.out.print(a + " ");
-//        }
-//        System.out.println("");
-
         System.out.println("Time to Generate E + P from N^2: " + (timeForEPFromNsqr/1000000000.0) + " Seconds.\nTime to Generate E + P from M:   " + (timeForEPFromM/1000000000.0) + " Seconds");
         File output = new File("output.txt");
         try {
@@ -291,18 +274,18 @@ public class Main {
             outputLine.append("DIST\n");
             outputLine.append(args[3] + "\n");
             outputLine.append("P\n");
-            for (int a : P)
+            for (int a : P3)
             {
                 outputLine.append(a + "\n");
             }
             outputLine.append("E\n");
-            for (int a : E)
+            for (int a : E3)
             {
+
                 outputLine.append(a + "\n");
             }
 
             pw.write(outputLine.toString());
-
             pw.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -26,7 +26,6 @@ public class Part2Main {
             String line = reader.readLine();
             while (line != null)
             {
-                System.out.println(line);
                 char switchCase = line.charAt(0);
                 if (line.length() > 1)
                 {
@@ -106,7 +105,6 @@ public class Part2Main {
                 nextSessionStart = P[i + 1];
 
 
-
             if (currentSessionStart != nextSessionStart)
             {
                 int conflictSessions[] = new int[nextSessionStart - currentSessionStart];
@@ -115,7 +113,7 @@ public class Part2Main {
                     conflictSessions[j] = E[eCounter];
                     eCounter ++;
                 }
-                sessionMap[i] = new Session(conflictSessions);
+                sessionMap[i] = new Session(conflictSessions, i);
 
 
             }
@@ -130,7 +128,7 @@ public class Part2Main {
 
         // This is where Vertex Colouring Happens
 
-        //Random Colouring
+//        //Random Colouring
         int[] sessionList = new int[sessionMap.length-1]; // Set the Randomizer to be the size of the SessionMap.
         for (int i = 0; i <  sessionList.length; i++)
             sessionList[i] = i+1;
@@ -146,18 +144,16 @@ public class Part2Main {
         for (int i = 0; i  < sessionList.length; i++)
         {
             int minColour = 0;
-            int conflits[] = sessionMap[sessionList[i]].getConflictArray();
-//            System.out.println(sessionList[i]);
-            for(int conflict : conflits)
-            {
-                int conflictColor = sessionMap[conflict].getColor();
-//                System.out.println(conflictColor);
-                if (conflictColor > minColour)
-                {
-                    minColour = conflictColor;
+            if (sessionMap[sessionList[i]] != null) {
+                int conflits[] = sessionMap[sessionList[i]].getConflictArray();
+                for (int conflict : conflits) {
+                    int conflictColor = sessionMap[conflict].getColor();
+                    if (conflictColor > minColour) {
+                        minColour = conflictColor;
+                    }
                 }
+                sessionMap[sessionList[i]].setColour(minColour + 1);
             }
-            sessionMap[sessionList[i]].setColour(minColour+1);
         }
 
 
@@ -165,26 +161,28 @@ public class Part2Main {
 
 
         //In Order Colouring
+/*
+        for (int i = 1; i  < sessionMap.length; i++)
+        {
+//            System.out.println(i + " " + sessionMap.length);
+            int minColour = 0;
+//            System.out.println(sessionMap[i].toString());
+            System.out.println(i);
+            if (sessionMap[i] != null) {
+                int conflits[] = sessionMap[i].getConflictArray();
+                for (int conflict : conflits) {
+                    int conflictColor = sessionMap[conflict].getColor();
+                    if (conflictColor > minColour) {
+                        minColour = conflictColor;
+                    }
+                }
+                sessionMap[i].setColour(minColour + 1);
+            }
+        }
 
-//        for (int i = 1; i  < sessionMap.length; i++)
-//        {
-////            System.out.println(i + " " + sessionMap.length);
-//            int minColour = 0;
-////            System.out.println(sessionMap[i].toString());
-//            int conflits[] = sessionMap[i].getConflictArray();
-//            for(int conflict : conflits)
-//            {
-////                System.out.println(conflict);
-//                int conflictColor = sessionMap[conflict].getColor();
-//                if (conflictColor > minColour)
-//                {
-//                    minColour = conflictColor;
-//                }
-//            }
-//            sessionMap[i].setColour(minColour+1);
-//        }
+*/
 
-
+//      Final Printing of the Sessions, their colour, and what they conflict with.
         for(Session session : sessionMap)
         {
             if (session != null)
