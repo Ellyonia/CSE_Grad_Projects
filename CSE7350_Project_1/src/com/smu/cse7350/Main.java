@@ -290,7 +290,7 @@ public class Main {
             outputLine.append(T + "\n");
             outputLine.append("DIST\n");
             outputLine.append(args[3] + "\n");
-            /*outputLine.append("P\n");
+            outputLine.append("P\n");
             for (int a : P)
             {
                 outputLine.append(a + "\n");
@@ -300,7 +300,7 @@ public class Main {
             {
                 outputLine.append(a + "\n");
             }
-            */
+
             pw.write(outputLine.toString());
 
             pw.close();
