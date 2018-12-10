@@ -5,6 +5,9 @@ import java.util.*;
 
 
 public class Part2Main {
+    static Session sessionMapRO[];
+    static Session sessionMapIO[];
+    static Session sessionMapSLV[];
     public static void main(String[] args) {
 
         int N = -1;
@@ -88,7 +91,9 @@ public class Part2Main {
         System.out.println("M: " + M);
         System.out.println("T: " + T);
 
-        Session sessionMap[] = new Session[N+1];
+        sessionMapRO = new Session[N+1];
+        sessionMapIO = new Session[N+1];
+        sessionMapSLV = new Session[N+1];
         int eCounter = 0;
 
 
@@ -113,12 +118,17 @@ public class Part2Main {
                     conflictSessions[j] = E[eCounter];
                     eCounter ++;
                 }
-                sessionMap[i] = new Session(conflictSessions, i);
-
+                sessionMapRO[i] = new Session(conflictSessions, i);
+                sessionMapIO[i] = new Session(conflictSessions, i);
+                sessionMapSLV[i] = new Session(conflictSessions, i);
 
             }
-            else
-                sessionMap[i] = null;
+            else {
+                sessionMapRO[i] = null;
+                sessionMapIO[i] = null;
+                sessionMapSLV[i] = null;
+            }
+
 
 
         }
@@ -127,9 +137,68 @@ public class Part2Main {
 
 
         // This is where Vertex Colouring Happens
+        long start = System.nanoTime();
+        randomOrderColour();
+        long finishRO = System.nanoTime();
 
-//        //Random Colouring
-        int[] sessionList = new int[sessionMap.length-1]; // Set the Randomizer to be the size of the SessionMap.
+        inOrderColor();
+        long finishIO = System.nanoTime();
+        smallestLastVertex();
+        long finishSLV = System.nanoTime();
+
+//      Final Printing of the Sessions, their colour, and what they conflict with.
+        int sessionIOColorMax = -1;
+        int sessionROColorMax = -1;
+        for(Session session : sessionMapIO)
+        {
+            if (session != null && session.getColor() > sessionIOColorMax)
+                sessionIOColorMax = session.getColor();
+        }
+        for(Session session : sessionMapRO)
+        {
+            if (session != null && session.getColor() > sessionROColorMax) {
+                sessionROColorMax = session.getColor();
+            }
+        }
+//        for(Session session : sessionMapRO)
+//        {
+//            if (session != null)
+//                System.out.println(session.toString());
+//        }
+
+        System.out.println("In Order Color Max: " + sessionIOColorMax);
+        System.out.println("Random Order Colour Max: " + sessionROColorMax);
+        System.out.println("Time for In Order Colouring:             " + (finishIO - finishRO)/1000000000.0 + " Seconds.");
+        System.out.println("Time for Random Order Colouring:         " + (finishRO - start)/1000000000.0 + " Seconds.");
+        System.out.println("Time for Smallest Last Vertex Colouring: " + (finishSLV - finishIO)/1000000000.0 + " Seconds.");
+
+
+    }
+
+
+    static void inOrderColor()
+    {
+        for (int i = 1; i  < sessionMapIO.length; i++)
+        {
+//            System.out.println(i + " " + sessionMap.length);
+            int minColour = 0;
+//            System.out.println(sessionMap[i].toString());
+            if (sessionMapIO[i] != null) {
+                int conflits[] = sessionMapIO[i].getConflictArray();
+                for (int conflict : conflits) {
+                    int conflictColor = sessionMapIO[conflict].getColor();
+                    if (conflictColor > minColour) {
+                        minColour = conflictColor;
+                    }
+                }
+                sessionMapIO[i].setColour(minColour + 1);
+            }
+        }
+    }
+
+    static void randomOrderColour()
+    {
+        int[] sessionList = new int[sessionMapRO.length-1]; // Set the Randomizer to be the size of the SessionMap.
         for (int i = 0; i <  sessionList.length; i++)
             sessionList[i] = i+1;
         for (int i = 0; i < sessionList.length; i++)
@@ -144,53 +213,22 @@ public class Part2Main {
         for (int i = 0; i  < sessionList.length; i++)
         {
             int minColour = 0;
-            if (sessionMap[sessionList[i]] != null) {
-                int conflits[] = sessionMap[sessionList[i]].getConflictArray();
+            if (sessionMapRO[sessionList[i]] != null) {
+                int conflits[] = sessionMapRO[sessionList[i]].getConflictArray();
                 for (int conflict : conflits) {
-                    int conflictColor = sessionMap[conflict].getColor();
+                    int conflictColor = sessionMapRO[conflict].getColor();
                     if (conflictColor > minColour) {
                         minColour = conflictColor;
                     }
                 }
-                sessionMap[sessionList[i]].setColour(minColour + 1);
+                sessionMapRO[sessionList[i]].setColour(minColour + 1);
             }
         }
+    }
 
-
-
-
-
-        //In Order Colouring
-/*
-        for (int i = 1; i  < sessionMap.length; i++)
-        {
-//            System.out.println(i + " " + sessionMap.length);
-            int minColour = 0;
-//            System.out.println(sessionMap[i].toString());
-            System.out.println(i);
-            if (sessionMap[i] != null) {
-                int conflits[] = sessionMap[i].getConflictArray();
-                for (int conflict : conflits) {
-                    int conflictColor = sessionMap[conflict].getColor();
-                    if (conflictColor > minColour) {
-                        minColour = conflictColor;
-                    }
-                }
-                sessionMap[i].setColour(minColour + 1);
-            }
-        }
-
-*/
-
-//      Final Printing of the Sessions, their colour, and what they conflict with.
-        for(Session session : sessionMap)
-        {
-            if (session != null)
-                System.out.println(session.toString());
-        }
-
-
-
+    static void smallestLastVertex()
+    {
+//        int[][] fa
 
     }
 }

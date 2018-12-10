@@ -17,6 +17,7 @@ public class Session
         this.sessionName = sessionName;
         this.colour = -1;
         this.conflictArray = conflictArray;
+        this.conflictCount = conflictArray.length;
         StringBuilder output = new StringBuilder();
         output.append("[");
         for(int i = 0; i < conflictArray.length; i++)
@@ -53,6 +54,11 @@ public class Session
     public int[] getConflictArray()
     {
         return conflictArray;
+    }
+
+    public int getConflictCount()
+    {
+        return conflictCount;
     }
 
 
